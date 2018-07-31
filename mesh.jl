@@ -83,7 +83,7 @@ Return a vector with the coordinates of the vertices of cell number `cell`.
     return coords
 end
 
-@inline function get_coordinates!(coords::Vector{Vec{dim,T}}, cell::Cell, mesh::PolygonalMesh{dim,N,M,K,T}) where {dim,N,M,K,T}
+@inline function get_coordinates!(coords::Vector{Vec{dim,T}}, cell::Cell{dim,N,M}, mesh::PolygonalMesh{dim,N,M,K,T}) where {dim,N,M,K,T}
     @assert length(coords) == N
     for (i,j) in enumerate(cell.nodes)
         coords[i] = mesh.nodes[j].x
@@ -91,32 +91,17 @@ end
     return coords
 end
 
-@inline function get_cell_coordinates(cell_idx::Int, mesh::PolygonalMesh{dim,N,M,K,T}) where {dim,N,M,K,T}
-    coords = Vector{Vec{dim,T}}(N)
-    for (i,j) in enumerate(mesh.cells[cell_idx].nodes)
-        coords[i] = mesh.nodes[j].x
-    end
-    return coords
+@inline function get_face_coordinates(face::Int, mesh::PolygonalMesh{dim,N,M,K,T}) where {dim,N,M,K,T}
+    return [node.x for node in getfacenodes(face,mesh)]::Vector{Vec{dim,T}}
 end
-
-@inline function get_cell_coordinates!(coords::Vector{Vec{dim,T}}, cell_idx::Int, mesh::PolygonalMesh{dim,N,M,K,T}) where {dim,N,M,K,T}
-    @assert length(coords) == N
-    for (i,j) in enumerate(mesh.cells[cell_idx].nodes)
-        coords[i] = mesh.nodes[j].x
-    end
-    return coords
-end
-@inline function get_coordinates(face::Int, mesh::PolygonalMesh{dim,N,M,K,T}) where {dim,N,M,K,T}
-    return [node.x for node in nodes(face,mesh)]::Vector{Vec{dim,T}}
-end
-@inline get_cells(mesh::PolygonalMesh) = mesh.cells
-@inline get_nodes(mesh::PolygonalMesh) = mesh.nodes
+@inline getcells(mesh::PolygonalMesh) = mesh.cells
+@inline getnodes(mesh::PolygonalMesh) = mesh.nodes
 @inline getndims(mesh::PolygonalMesh{dim}) where {dim} = dim
-@inline nodes(ele::Cell, mesh::PolygonalMesh) = [mesh.nodes[node] for node in ele.nodes]
-@inline nodes(face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = [mesh.nodes[node] for node in mesh.faces[face,1:L]]
-@inline cells(face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = [mesh.cells[ele] for ele in mesh.faces[face,L+1:end]]
-@inline getcell(cell::Int,face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = mesh.faces[face,L+cell]
-@inline getnode(node::Int,face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = mesh.nodes[mesh.faces[face,node]]
+@inline getcellnodes(ele::Int, mesh::PolygonalMesh) = [mesh.nodes[node] for node in mesh.cells[ele].nodes]
+@inline getfacenodes(face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = [mesh.nodes[node] for node in mesh.faces[face,1:L]]
+@inline getfacecells(face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = [mesh.cells[ele] for ele in mesh.faces[face,L+1:end]]
+@inline getfacecell(cell::Int,face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = mesh.faces[face,L+cell]
+@inline getfacenode(node::Int,face::Int, mesh::PolygonalMesh{dim,N,M,L}) where {dim,N,M,L} = mesh.nodes[mesh.faces[face,node]]
 
 _check_setname(dict, name) = haskey(dict, name) && throw(ArgumentError("there already exists a set with the name: $name"))
 _warn_emptyset(set) = length(set) == 0 && warn("no entities added to set")
