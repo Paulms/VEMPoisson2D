@@ -60,4 +60,9 @@ internal_dofs = setdiff(1:n_dofs, boundary_nodes)
 F = F - K[:, collect(boundary_nodes)] * boundary_vals; # Apply the boundary condition
 u[internal_dofs] = K[collect(internal_dofs), collect(internal_dofs)] \ F[collect(internal_dofs)]; # Solve
 u[collect(boundary_nodes)] = boundary_vals; # Set the boundary values
-#plot_solution(mesh, u)
+
+#plot solution
+# coordinates = get_vertices_matrix(mesh);
+# connectivity = get_cells_matrix(mesh);
+# using Makie
+# poly(coordinates, connectivity, color = u, strokecolor = (:black, 0.6), strokewidth = 4)
