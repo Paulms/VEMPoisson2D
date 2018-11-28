@@ -124,6 +124,12 @@ function cell_diameter(cell_idx::Int, mesh::PolygonalMesh{2,N,M,L,T}) where {N,M
     h
 end
 
+#Check if cell has its vertices ordered counter-clockwise
+# Works for convex 2D polygons
+function check_orientation(cell_idx::Int, mesh::PolygonalMesh{2,N,M}) where {N,M}
+    return sum(verts[j][1]*verts[mod1(j+1,N)][2]-verts[mod1(j+1,N)][1]*verts[j][2] for j ∈ 1:N) > 0
+end
+
 function cell_volume(cell_idx::Int, mesh::PolygonalMesh{2,N,M}) where {N,M}
     cell = mesh.cells[cell_idx]
     verts = get_coordinates(cell,  mesh)

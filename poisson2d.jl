@@ -62,7 +62,7 @@ u[internal_dofs] = K[collect(internal_dofs), collect(internal_dofs)] \ F[collect
 u[collect(boundary_nodes)] = boundary_vals; # Set the boundary values
 
 #plot solution
-# coordinates = get_vertices_matrix(mesh);
-# connectivity = get_cells_matrix(mesh);
+coordinates = get_vertices_matrix(mesh);
+connectivity = get_cells_matrix(mesh);
 # using Makie
 # poly(coordinates, connectivity, color = u, strokecolor = (:black, 0.6), strokewidth = 4)
