@@ -9,7 +9,7 @@ include("mesh.jl")
 include("generate_mesh.jl")
 include("assembler.jl")
 
-@time mesh = rectangle_mesh(RectangleCell, (10,10), Vec{2}((0.0,0.0)), Vec{2}((1.0,1.0)));
+mesh = rectangle_mesh(RectangleCell, (10,10), Vec{2}((0.0,0.0)), Vec{2}((1.0,1.0)));
 
 # forcing function
 rhs(x::Vec{2}) = 15 * sin(π * x[1]) * sin(π * x[2]);
@@ -64,5 +64,15 @@ u[collect(boundary_nodes)] = boundary_vals; # Set the boundary values
 #plot solution
 coordinates = get_vertices_matrix(mesh);
 connectivity = get_cells_matrix(mesh);
-# using Makie
-# poly(coordinates, connectivity, color = u, strokecolor = (:black, 0.6), strokewidth = 4)
+color = u
+#init scene
+using Makie#, CairoMakie
+using ColorSchemes
+scene = Scene(resolution = (500, 500), colorrange = (0.0, 1.0), colormap = ColorSchemes.viridis.colors)
+for row in 1:size(connectivity)[1]
+	#read coordinates
+	points = node(:poly, Point2f0[coordinates[i,:] for i in connectivity[row,:]])
+	colors = get(ColorSchemes.viridis, [color[i] for i in connectivity[row,:]])
+	poly!(scene, points, strokewidth = 1, strokecolor = :black, color = colors, show_axis = true, scale_plot = false)
+end
+display(scene)
